@@ -46,42 +46,40 @@ unsigned int Datastructures::town_count()
 
 void Datastructures::clear_all()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("clear_all()");
+    towns_.clear();
 }
 
-bool Datastructures::add_town(TownID /*id*/, const Name &/*name*/, Coord /*coord*/, int /*tax*/)
+bool Datastructures::add_town(TownID id, const Name &name, Coord coord, int tax)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("add_town()");
+    Town* new_town = new Town{id, name, coord, tax};
+    auto ret = towns_.insert( std::pair(new_town->id_, new_town)) ;
+    return ret.first->second;
 }
 
-Name Datastructures::get_town_name(TownID /*id*/)
+Name Datastructures::get_town_name(TownID id)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("get_town_name()");
+    return towns_.at(id)->name_;
 }
 
-Coord Datastructures::get_town_coordinates(TownID /*id*/)
+Coord Datastructures::get_town_coordinates(TownID id)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("get_town_coordinates()");
+    return towns_.at(id)->location_;
 }
 
-int Datastructures::get_town_tax(TownID /*id*/)
+int Datastructures::get_town_tax(TownID id)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("get_town_tax()");
+    return towns_.at(id)->tax_;
 }
 
 std::vector<TownID> Datastructures::all_towns()
 {
-    // Replace the line below with your implementation
-    throw NotImplemented("all_towns()");
+    std::vector<TownID> ret;
+
+    for(auto it = towns_.begin(); it != towns_.end(); ++it) {
+        ret.push_back(it->first);
+    }
+
+    return ret;
 }
 
 std::vector<TownID> Datastructures::find_towns(const Name &/*name*/)

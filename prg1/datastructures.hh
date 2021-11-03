@@ -8,6 +8,7 @@
 #define DATASTRUCTURES_HH
 
 #include <string>
+#include <map>
 #include <vector>
 #include <tuple>
 #include <utility>
@@ -179,6 +180,14 @@ public:
 
 private:
     // Add stuff needed for your class implementation here
+    struct Town {
+        TownID id_ = NO_TOWNID;
+        Name name_ = NO_NAME;
+        Coord location_ = NO_COORD;
+        int tax_ = 0;
+    };
+
+    std::unordered_map<TownID, Town*> towns_ = {};
 
 };
 
