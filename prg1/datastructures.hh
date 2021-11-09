@@ -96,48 +96,51 @@ public:
     Datastructures();
     ~Datastructures();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: only uses .size() which is constant
     unsigned int town_count();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(n)
+    // Short rationale for estimate:only uses .clear() which is linear
     void clear_all();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(N))
+    // Short rationale for estimate: Funtion uses constant orders and couple of
+    // logarithmic functions.
     bool add_town(TownID id, Name const& name, Coord coord, int tax);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(N))
+    // Short rationale for estimate: Uses town_exist_ which is logarithmic
     Name get_town_name(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(N))
+    // Short rationale for estimate: Uses town_exist_ which is logarithmic
     Coord get_town_coordinates(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(N))
+    // Short rationale for estimate: Uses town_exist_ which is logarithmic
     int get_town_tax(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: For-loops as linear operation where N is
+    // size of unordered_map towns_
     std::vector<TownID> all_towns();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: While-loops as linear operation where N is
+    // size of unordered_map towns_
     std::vector<TownID> find_towns(Name const& name);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(log(N))
+    // Short rationale for estimate: Uses town_exist_ which is logarithmic
     bool change_town_name(TownID id, Name const& newname);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N*log(N))
+    // Short rationale for estimate: Uses std::sort which is approximately N*log(N)
     std::vector<TownID> towns_alphabetically();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N*log(N))
+    // Short rationale for estimate: Uses std::sort which is approximately N*log(N)
     std::vector<TownID> towns_distance_increasing();
 
     // Estimate of performance:
@@ -180,15 +183,20 @@ public:
 
 private:
     // Add stuff needed for your class implementation here
+
     struct Town {
         TownID id_ = NO_TOWNID;
         Name name_ = NO_NAME;
         Coord location_ = NO_COORD;
         int tax_ = 0;
+        TownID  masterid_ = NO_TOWNID;
+        std::vector<TownID> town_vassals = {};
     };
 
     std::unordered_map<TownID, Town*> towns_ = {};
 
+    bool town_exist_(TownID town);
+    int distance_(Coord location1, Coord location2);
 };
 
 #endif // DATASTRUCTURES_HH
