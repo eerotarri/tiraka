@@ -133,16 +133,27 @@ std::vector<TownID> Datastructures::towns_distance_increasing()
     return towns;
 }
 
-TownID Datastructures::min_distance()
+TownID Datastructures::min_distance() // O(N)
 {
-    std::vector<TownID> towns = towns_distance_increasing();
-    return towns.at(0);
+
+    std::vector<TownID> towns = all_towns(); // O(N)
+
+    auto it = std::min_element(towns.begin(), towns.end(),
+                               [this](TownID i, TownID j)
+                               { return distance_(towns_.at(i)->location_, {0,0})
+                               < distance_(towns_.at(j)->location_, {0,0}); } );  // O(N)
+    return *it;
 }
 
 TownID Datastructures::max_distance()
 {
-    std::vector<TownID> towns = towns_distance_increasing();
-    return towns.back();
+    std::vector<TownID> towns = all_towns(); // O(N)
+
+    auto it = std::max_element(towns.begin(), towns.end(),
+                               [this](TownID i, TownID j)
+                               { return distance_(towns_.at(i)->location_, {0,0})
+                               < distance_(towns_.at(j)->location_, {0,0}); } );  // O(N)
+    return *it;
 }
 
 bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)

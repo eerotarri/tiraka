@@ -143,24 +143,26 @@ public:
     // Short rationale for estimate: Uses std::sort which is approximately N*log(N)
     std::vector<TownID> towns_distance_increasing();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Gets all_towns (O(N)) and min_element (O(N) separately)
     TownID min_distance();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Gets all_towns (O(N)) and max_element (O(N) separately)
     TownID max_distance();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist and find separately.
+    // Both are O(N)
     bool add_vassalship(TownID vassalid, TownID masterid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist which is O(N)
     std::vector<TownID> get_town_vassals(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist, which is linear
+    // and while loop, which is linear in worst case but averages less.
     std::vector<TownID> taxer_path(TownID id);
 
     // Non-compulsory phase 1 operations
