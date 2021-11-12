@@ -156,13 +156,19 @@ TownID Datastructures::max_distance()
     return *it;
 }
 
-bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)
+bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)  // Pitäskö tätä vielä muuttaa?
 {
     if (town_exist_(vassalid) && town_exist_(masterid)) {
+
         auto v = towns_.at(masterid)->town_vassals;
+
         if (std::find(v.begin(), v.end(), vassalid) == v.end()) {
             towns_.at(masterid)->town_vassals.push_back(vassalid);
+            towns_.at(masterid)->tax_ += 0.1 * towns_.at(vassalid)->tax_;
+
             towns_.at(vassalid)->masterid_ = masterid;
+            towns_.at(vassalid)->tax_ += 0.1 * towns_.at(masterid)->tax_;
+
             return true;
         }
     }
@@ -186,6 +192,7 @@ std::vector<TownID> Datastructures::taxer_path(TownID id)
             v.push_back(towns_.at(vassal)->masterid_);
             vassal = towns_.at(vassal)->masterid_;
         }
+        return v;
     }
     return {NO_TOWNID};
 }
