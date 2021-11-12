@@ -1,4 +1,4 @@
-// Datastructures.cc
+﻿// Datastructures.cc
 //
 // Student name: Eero Tarri
 // Student email: eero.tarri@tuni.fi
@@ -123,8 +123,7 @@ bool Datastructures::change_town_name(TownID id, const Name &newname)
 std::vector<TownID> Datastructures::towns_alphabetically()
 {
     std::vector<TownID> towns = all_towns();
-    if (towns.empty())
-    {return {};}
+    if (towns.empty()) {return {};}
     std::sort( towns.begin(), towns.end(),
                [this](TownID i, TownID j){ return towns_.at(i)->name_ < towns_.at(j)->name_; });
 
@@ -134,8 +133,7 @@ std::vector<TownID> Datastructures::towns_alphabetically()
 std::vector<TownID> Datastructures::towns_distance_increasing()
 {
     std::vector<TownID> towns = all_towns(); // O(N)
-    if (towns.empty())
-    {return {};}
+    if (towns.empty()) {return {};}
     std::sort( towns.begin(), towns.end(),
                [this](TownID i, TownID j){return distance_(towns_.at(i)->location_, {0,0}) <
                 distance_(towns_.at(j)->location_, {0,0});});
@@ -172,7 +170,7 @@ TownID Datastructures::max_distance()
     return *it;
 }
 
-bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)  // total_net_tax toiseen funktioon
+bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)
 {
     if (town_exist_(vassalid) && town_exist_(masterid)) {
 
@@ -210,9 +208,9 @@ std::vector<TownID> Datastructures::taxer_path(TownID id)
     return {NO_TOWNID};
 }
 
-bool Datastructures::remove_town(TownID id) // O(N)
+bool Datastructures::remove_town(TownID id)
 {
-    if (!town_exist_(id)) {return false;} // O(N)
+    if (!town_exist_(id)) {return false;}
 
     auto vassals = towns_.at(id)->town_vassals;
 
@@ -255,7 +253,7 @@ std::vector<TownID> Datastructures::longest_vassal_path(TownID id) // O(N)
 
     std::vector<TownID> longest_path = {};
 
-    for (auto &vassal : towns_.at(id)->town_vassals) { // O(N)
+    for (auto &vassal : towns_.at(id)->town_vassals) { // O(N*log(N))
         std::vector<TownID> vassal_path = longest_vassal_path(vassal);
         if (vassal_path.size() > longest_path.size()) {longest_path = vassal_path;}
     }

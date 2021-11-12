@@ -1,0 +1,167 @@
+// README.txt
+//
+// Student name: Eero Tarri
+// Student email: eero.tarri@tuni.fi
+// Student number: H283568
+
+--------------
+DATA STRUCTURE
+--------------
+
+Yksittäisen kaupungin tiedot ovat tallennettu structureen Town.
+Kaupungista tallennetaan tunnus, nimi, sijainti sekä verojen määrä.
+Structureen tallennetaan myös kaupunki, jolle maksetaan veroa sekä
+kaikkien kaupunkien tunnus vektorissa, jotka maksavat kaupungille veroa.
+
+Kaikki yksittäiset kaupungit ovat tallennettu unordered_map
+tietorakenteeseen. Sieltä niitä on helppo käsitellä tunnuksella
+
+---------------
+PRIVATE METHODS
+---------------
+
+Apufunktiot, joita käytetään yhden tai useamman funktion toiminnan
+mahdollistamiseen. Funktiota town_exist_ on jouduttu käyttämään useassa
+funktiossa, jotta saadaan selville, onko kaupunki tietorakenteessa, joka
+rajoittaa monen funktion osalta tehokkuuden lineaarisuuteen.
+
+
+- town_exist_ (O(N))
+
+Funktio joka palauttaa arvon TRUE, jos tunnuksella annettu kaupunki
+löytyy tietorakenteesta towns_. FALSE, jos arvoa ei löydy.
+
+- distance_ (O(1))
+
+Laskee kahden annatun sijainnin etäisyyden toisistaan ja palauttaa
+saadun arvon pyöristettynä alaspäin lähimpään kokonaislukuun.
+
+- recursive_tax_ (O(N))
+
+Apufunktio pisimmän vasallisuhteen löytämiseen. Olennainen, jotta
+funktiossa longest_vassal_path voidaan tarkastella, onko tunnuksella
+annetulla kaupungilla itsellään Master-kaupunkia. Laskee rekursiivisesti
+kaikkien suoraan ja epäsuoraan alla olevien vasallikaupunkien nettoveroarvot
+ja palauttaa tunnuksella annetun kaupungin verottamattoman nettoveroarvon.
+Jos kaupunki on jonkun muun kaupungin verovelvollinen, tarkastus ja muutos
+tapahtuu kutsujafunktiossa longest_vassal_path.
+
+
+---------------
+PUBLIC METHODS
+---------------
+
+- town_count (O(1))
+
+Palauttaa tietorakenteessa olevien kaupunkien määrän. Käyttää
+std metodia .size() joka on vakioaikaninen.
+
+- clear_all (O(N))
+
+Poistaa kaikki kaupungit tietorakenteesta. .clear() on lineaarinen.
+
+- add_town (O(N))
+
+Tarkastaa town_exist_ funktiolla, onko kaupunki tietorakenteessa,
+ja lisää sen, jos ei löytynyt jo.
+
+- get_town_name (O(N))
+
+Getter funktio, joka palauttaa kaupungin nimen. Tarkistus
+town_exist_ funktiolla.
+
+- get_town_coordinates (O(N))
+
+Getter funktio, joka palauttaa kaupungin sijainnin. Tarkistus
+town_exist_ funktiolla.
+
+- get_town_tax (O(N))
+
+Getter funktio, joka palauttaa kaupungin verojen määrän. Tarkistus
+town_exist_ funktiolla.
+
+- all_towns (O(N))
+
+Iteroi tietorakenteen N-kappaletta läpi ja lisää first-arvot vektoriin,
+joka palautetaan.
+
+- find_towns (O(N))
+
+Iteroi tietorakenteen N-kappaletta läpi ja lisää jokaisen nimi-parametria
+vastaavan tunnuksen vektoriin, joka palautetaan.
+
+- change_town_name (O(N))
+
+Vaihtaa tunnuksella annetun kaupungin nimen. Käyttää funktiota town_exist_.
+
+- towns_alphabetically (O(N*log(N)))
+
+Järjestää vektorin alkiot annetun järjestysfunktion avulla nimen perusteella
+kasvavaan järjestykseen. std::sort on tehokkuudeltaan N*log(N).
+
+- towns_distance_increasing (O(N*log(N)))
+
+Järjestää vektorin alkiot annetun järjestysfunktion avulla etäisyyden origosta
+perusteella kasvavaan järjestykseen.. std::sort on tehokkuudeltaan N*log(N).
+
+- min_distance (O(N))
+
+Etsii kaupungin, jolla on lyhin etäisyys origoon käyttämällä avukseeen
+std-operaatiota min_element, jolla on vertailufunktiona lambda, joka vertailee
+kaupunkien etäisyyksiä origoon. min_distance on tehokkuudeltaan lineaarinen.
+
+- min_distance (O(N))
+
+Etsii kaupungin, jolla on pisin etäisyys origoon käyttämällä avukseeen
+std-operaatiota max_element, jolla on vertailufunktiona lambda, joka vertailee
+kaupunkien etäisyyksiä origoon. max_distance on tehokkuudeltaan lineaarinen.
+
+- add_vassalship (O(N))
+
+Käyttää funktiota town_exist_ selvittääkseen, löytyykö sekä masterid että
+vassalid. Käyttää std::find operaatiota selvittääkseen, onko vassaalisuhde
+jo luotu. Jos ehdot täyttyvät, suorittaa vain vakioaikaisia operaatiota.
+
+- get_town_vassals (O(N))
+
+Getter funktio, joka palauttaa kaupungin vassaalikaupungit vektorissa.
+Tarkistus town_exist_ funktiolla.
+
+- taxer_path (O(N))
+
+Käyttää funktiota town_exist_ ja iteroi masterid:tä listamaisesti ylöspäin,
+kunnes löytyy kaupunki, jolla ei ole masteria. Lisää käsitellyt kaupungit
+listaan ja palauttaa sen.
+
+
+NON-COMPULSORY OPERATIONS
+-------------------------
+
+- remove_town (O(N))
+
+Käyttää funktiota town_exist_ ja suorittaa vakioaikaisia poistoja sekä
+vassaalien masterin muutoksen for-loopissa.
+
+- town_nearest (N*log(N))
+
+Järjestää vektorin alkiot annetun järjestysfunktion avulla etäisyyden annettuun
+sijaintiin perusteella kasvavaan järjestykseen.
+std::sort on tehokkuudeltaan N*log(N).
+
+- longest_vassal_path (O(N))
+
+Iteroi puurakennetta rekursiivisesti alaspäin lehteen asti ja palaa takaisin
+ylöspäin lisäten aina pisimmän polun solmun paluuvektoriin. Käy jokaisen
+solmun kerran läpi, jolloin operaatio on lineaarinen.
+
+- total_net_tax (O(N))
+
+Kutsuu apufunktiota recursive_tax_ ja kertoo saadun arvon 0.9, jos kaupunki
+itse maksaa veroa jollekin toiselle kaupungille.
+
+
+
+
+
+
+

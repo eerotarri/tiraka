@@ -1,4 +1,4 @@
-// Datastructures.hh
+﻿// Datastructures.hh
 //
 // Student name: Eero Tarri
 // Student email: eero.tarri@tuni.fi
@@ -104,9 +104,8 @@ public:
     // Short rationale for estimate:only uses .clear() which is linear
     void clear_all();
 
-    // Estimate of performance: O(log(N))
-    // Short rationale for estimate: Funtion uses constant orders and couple of
-    // logarithmic functions.
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Funtion uses constant orders town_exist_
     bool add_town(TownID id, Name const& name, Coord coord, int tax);
 
     // Estimate of performance: O(N)
@@ -176,8 +175,8 @@ public:
     // Short rationale for estimate: Uses std::sort which is approximately N*log(N)
     std::vector<TownID> towns_nearest(Coord coord);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Iterates once each node in the subtree.
     std::vector<TownID> longest_vassal_path(TownID id);
 
     // Estimate of performance: O(N)
