@@ -109,16 +109,16 @@ public:
     // logarithmic functions.
     bool add_town(TownID id, Name const& name, Coord coord, int tax);
 
-    // Estimate of performance: O(log(N))
-    // Short rationale for estimate: Uses town_exist_ which is logarithmic
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist which is O(N)
     Name get_town_name(TownID id);
 
-    // Estimate of performance: O(log(N))
-    // Short rationale for estimate: Uses town_exist_ which is logarithmic
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist which is O(N)
     Coord get_town_coordinates(TownID id);
 
-    // Estimate of performance: O(log(N))
-    // Short rationale for estimate: Uses town_exist_ which is logarithmic
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist which is O(N)
     int get_town_tax(TownID id);
 
     // Estimate of performance: O(N)
@@ -131,8 +131,8 @@ public:
     // size of unordered_map towns_
     std::vector<TownID> find_towns(Name const& name);
 
-    // Estimate of performance: O(log(N))
-    // Short rationale for estimate: Uses town_exist_ which is logarithmic
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist which is O(N)
     bool change_town_name(TownID id, Name const& newname);
 
     // Estimate of performance: O(N*log(N))
@@ -167,24 +167,25 @@ public:
 
     // Non-compulsory phase 1 operations
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses town_exist, which is linear
+    // and for loops which are linear
     bool remove_town(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N*log(N))
+    // Short rationale for estimate: Uses std::sort which is approximately N*log(N)
     std::vector<TownID> towns_nearest(Coord coord);
 
     // Estimate of performance:
     // Short rationale for estimate:
     std::vector<TownID> longest_vassal_path(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Iterates trough all vassal towns indirectly under
+    // id which is N times at worst.
     int total_net_tax(TownID id);
 
 private:
-    // Add stuff needed for your class implementation here
 
     struct Town {
         TownID id_ = NO_TOWNID;
@@ -197,8 +198,18 @@ private:
 
     std::unordered_map<TownID, Town*> towns_ = {};
 
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses std::find
     bool town_exist_(TownID town);
+
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Only constant operations
     int distance_(Coord location1, Coord location2);
+
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: recursively iterates trough
+    // subtree and performs constant operations on all of the nodes
+    int recursive_tax_(TownID id);
 };
 
 #endif // DATASTRUCTURES_HH

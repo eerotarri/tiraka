@@ -1,16 +1,14 @@
 // Datastructures.cc
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Eero Tarri
+// Student email: eero.tarri@tuni.fi
+// Student number: H283568
 
 #include "datastructures.hh"
 
 #include <random>
 
 #include <cmath>
-
-#include <QDebug>
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -36,6 +34,12 @@ Datastructures::Datastructures()
 
 Datastructures::~Datastructures()
 {
+//    std::unordered_map<TownID, Town*>::iterator it = towns_.begin();
+//    while ( it != towns_.end() ) {
+//        delete it->second;
+
+//        it++;
+//    }
     clear_all();
 }
 
@@ -83,7 +87,7 @@ int Datastructures::get_town_tax(TownID id)
 
 std::vector<TownID> Datastructures::all_towns()
 {
-    std::vector<TownID> ret;
+    std::vector<TownID> ret = {};
 
     for(auto it = towns_.begin(); it != towns_.end(); ++it) {
         ret.push_back(it->first);
@@ -101,6 +105,7 @@ std::vector<TownID> Datastructures::find_towns(const Name &name)
         if (it->second->name_ == name) {
             ret.push_back(it->first);
         }
+        ++it;
     }
 
     return ret;
@@ -117,8 +122,11 @@ bool Datastructures::change_town_name(TownID id, const Name &newname)
 
 std::vector<TownID> Datastructures::towns_alphabetically()
 {
-    std::vector<TownID> towns = all_towns(); // O(N)
-    std::sort( towns.begin(), towns.end() ); // O(N*log(N))
+    std::vector<TownID> towns = all_towns();
+    if (towns.empty())
+    {return {};}
+    std::sort( towns.begin(), towns.end(),
+               [this](TownID i, TownID j){ return towns_.at(i)->name_ < towns_.at(j)->name_; });
 
     return towns;
 }
@@ -126,6 +134,8 @@ std::vector<TownID> Datastructures::towns_alphabetically()
 std::vector<TownID> Datastructures::towns_distance_increasing()
 {
     std::vector<TownID> towns = all_towns(); // O(N)
+    if (towns.empty())
+    {return {};}
     std::sort( towns.begin(), towns.end(),
                [this](TownID i, TownID j){return distance_(towns_.at(i)->location_, {0,0}) <
                 distance_(towns_.at(j)->location_, {0,0});});
@@ -133,30 +143,36 @@ std::vector<TownID> Datastructures::towns_distance_increasing()
     return towns;
 }
 
-TownID Datastructures::min_distance() // O(N)
+TownID Datastructures::min_distance()
 {
 
-    std::vector<TownID> towns = all_towns(); // O(N)
+    std::vector<TownID> towns = all_towns();
+
+    if (towns.empty())
+    {return {NO_TOWNID};}
 
     auto it = std::min_element(towns.begin(), towns.end(),
                                [this](TownID i, TownID j)
                                { return distance_(towns_.at(i)->location_, {0,0})
-                               < distance_(towns_.at(j)->location_, {0,0}); } );  // O(N)
+                               < distance_(towns_.at(j)->location_, {0,0}); } );
     return *it;
 }
 
 TownID Datastructures::max_distance()
 {
-    std::vector<TownID> towns = all_towns(); // O(N)
+    std::vector<TownID> towns = all_towns();
+
+    if (towns.empty())
+    {return {NO_TOWNID};}
 
     auto it = std::max_element(towns.begin(), towns.end(),
                                [this](TownID i, TownID j)
                                { return distance_(towns_.at(i)->location_, {0,0})
-                               < distance_(towns_.at(j)->location_, {0,0}); } );  // O(N)
+                               < distance_(towns_.at(j)->location_, {0,0}); } );
     return *it;
 }
 
-bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)  // Pitäskö tätä vielä muuttaa?
+bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)  // total_net_tax toiseen funktioon
 {
     if (town_exist_(vassalid) && town_exist_(masterid)) {
 
@@ -164,10 +180,7 @@ bool Datastructures::add_vassalship(TownID vassalid, TownID masterid)  // Pitäs
 
         if (std::find(v.begin(), v.end(), vassalid) == v.end()) {
             towns_.at(masterid)->town_vassals.push_back(vassalid);
-            towns_.at(masterid)->tax_ += 0.1 * towns_.at(vassalid)->tax_;
-
             towns_.at(vassalid)->masterid_ = masterid;
-            towns_.at(vassalid)->tax_ += 0.1 * towns_.at(masterid)->tax_;
 
             return true;
         }
@@ -197,35 +210,74 @@ std::vector<TownID> Datastructures::taxer_path(TownID id)
     return {NO_TOWNID};
 }
 
-bool Datastructures::remove_town(TownID /*id*/)
+bool Datastructures::remove_town(TownID id) // O(N)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("remove_town()");
+    if (!town_exist_(id)) {return false;} // O(N)
+
+    auto vassals = towns_.at(id)->town_vassals;
+
+    if (towns_.at(id)->masterid_ != NO_TOWNID ) {
+
+        auto& master_vassals = towns_.at(towns_.at(id)->masterid_)->town_vassals;
+        master_vassals.erase(std::remove(master_vassals.begin(), master_vassals.end(), id), master_vassals.end());
+
+        for (auto& vassal : vassals) { // O(N)
+            master_vassals.push_back(vassal);
+            towns_.at(vassal)->masterid_ = towns_.at(id)->masterid_;
+        }
+    } else {
+        for (auto& vassal : vassals) {// O(N)
+            towns_.at(vassal)->masterid_ = NO_TOWNID;
+        }
+    }
+
+    towns_.erase(id);
+    return true;
 }
 
-std::vector<TownID> Datastructures::towns_nearest(Coord /*coord*/)
+std::vector<TownID> Datastructures::towns_nearest(Coord coord)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("towns_nearest()");
+    std::vector<TownID> towns = all_towns();
+    if (towns.empty())
+    {return {};}
+    std::sort( towns.begin(), towns.end(),
+               [this, coord](TownID i, TownID j){return distance_(towns_.at(i)->location_, coord) <
+                distance_(towns_.at(j)->location_, coord);});
+
+    return towns;
 }
 
-std::vector<TownID> Datastructures::longest_vassal_path(TownID /*id*/)
+std::vector<TownID> Datastructures::longest_vassal_path(TownID id) // O(N)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("longest_vassal_path()");
+    if (!town_exist_(id)) {return {NO_TOWNID};} // O(N)
+
+    std::vector<TownID> path = {id};
+
+    std::vector<TownID> longest_path = {};
+
+    for (auto &vassal : towns_.at(id)->town_vassals) { // O(N)
+        std::vector<TownID> vassal_path = longest_vassal_path(vassal);
+        if (vassal_path.size() > longest_path.size()) {longest_path = vassal_path;}
+    }
+
+    for (auto& item : longest_path) { // O(N)
+        path.push_back(item);
+    }
+
+
+    return path;
 }
 
-int Datastructures::total_net_tax(TownID /*id*/)
+int Datastructures::total_net_tax(TownID id)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("total_net_tax()");
+    int sum = recursive_tax_(id);
+    if (towns_.at(id)->masterid_ != NO_TOWNID) {
+        sum *= 0.9;
+    }
+    return sum;
 }
 
-bool Datastructures::town_exist_(TownID town) //log(n)
+bool Datastructures::town_exist_(TownID town) //N
 {
     if (towns_.find(town) == towns_.end())
     {return false;}
@@ -240,3 +292,16 @@ int Datastructures::distance_(Coord location1, Coord location2) // O(1)
     int y2 = location2.y;
     return floor( sqrt( pow((x1-x2), 2) + pow((y1-y2), 2) ) );
 }
+
+int Datastructures::recursive_tax_(TownID id)
+{
+    if (towns_.at(id)->town_vassals.empty()) { return towns_.at(id)->tax_; }
+
+    int sum = towns_.at(id)->tax_;
+    for (TownID& vassal : towns_.at(id)->town_vassals) {
+        sum += std::floor(0.1 * recursive_tax_(vassal));
+    }
+
+    return sum;
+}
+

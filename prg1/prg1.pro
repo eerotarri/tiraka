@@ -8,7 +8,7 @@
 # NOTE 1: Enabling debug STL mode will make the performance WORSE. So don't enable it when running performance tests!
 # NOTE 2: If you uncomment or recomment the line, remember to recompile EVERYTHING by selecting
 # "Rebuild all" from the Build menu
-QMAKE_CXXFLAGS += -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+# QMAKE_CXXFLAGS += -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 
 # Uncomment the line below to use Linux kernel performance events for the perftest command
 # NOTE1 : You'll have to figure out yourself whether and how to install the necessary developer package
@@ -30,7 +30,7 @@ TEMPLATE = app
 # any feature of Qt which as been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
+# DEFINES += QT_DEPRECATED_WARNINGS
 
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
