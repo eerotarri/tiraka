@@ -198,17 +198,17 @@ private:
     std::unordered_map<TownID, Town*> towns_ = {};
 
     // Estimate of performance: O(N)
+    // Short rationale for estimate: recursively iterates trough
+    // subtree and performs constant operations on all of the nodes
+    int recursive_tax_(TownID id);
+
+    // Estimate of performance: O(N)
     // Short rationale for estimate: Uses std::find
     bool town_exist_(TownID town);
 
     // Estimate of performance: O(1)
     // Short rationale for estimate: Only constant operations
     int distance_(Coord location1, Coord location2);
-
-    // Estimate of performance: O(N)
-    // Short rationale for estimate: recursively iterates trough
-    // subtree and performs constant operations on all of the nodes
-    int recursive_tax_(TownID id);
 };
 
 #endif // DATASTRUCTURES_HH
