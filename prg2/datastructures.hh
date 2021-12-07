@@ -8,6 +8,7 @@
 #define DATASTRUCTURES_HH
 
 #include <string>
+#include <map>
 #include <vector>
 #include <tuple>
 #include <utility>
@@ -223,7 +224,30 @@ public:
     Distance trim_road_network();
 
 private:
-    // Add stuff needed for your class implementation here
+
+    struct Town {
+        TownID id_ = NO_TOWNID;
+        Name name_ = NO_NAME;
+        Coord location_ = NO_COORD;
+        int tax_ = 0;
+        TownID  masterid_ = NO_TOWNID;
+        std::vector<TownID> town_vassals = {};
+    };
+
+    std::unordered_map<TownID, Town*> towns_ = {};
+
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: recursively iterates trough
+    // subtree and performs constant operations on all of the nodes
+    int recursive_tax_(TownID id);
+
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Uses std::find
+    bool town_exist_(TownID town);
+
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Only constant operations
+    int distance_(Coord location1, Coord location2);
 
 };
 
