@@ -9,6 +9,7 @@
 
 #include <string>
 #include <map>
+#include <unordered_set>
 #include <vector>
 #include <tuple>
 #include <utility>
@@ -225,6 +226,8 @@ public:
 
 private:
 
+    enum Colour {WHITE, GRAY, BLACK};
+
     struct Town {
         TownID id_ = NO_TOWNID;
         Name name_ = NO_NAME;
@@ -232,6 +235,12 @@ private:
         int tax_ = 0;
         TownID  masterid_ = NO_TOWNID;
         std::vector<TownID> town_vassals = {};
+
+        int d = NO_VALUE; // Distance
+        Town* path_back = nullptr; // pi
+        Colour colour = WHITE; // Colour
+
+        std::unordered_set<TownID> neighbours_ = {};
     };
 
     std::unordered_map<TownID, Town*> towns_ = {};
@@ -248,6 +257,8 @@ private:
     // Estimate of performance: O(1)
     // Short rationale for estimate: Only constant operations
     int distance_(Coord location1, Coord location2);
+
+    std::vector<TownID> get_path_(TownID id);
 
 };
 
