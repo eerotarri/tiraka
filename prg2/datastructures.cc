@@ -305,9 +305,15 @@ int Datastructures::distance_(Coord location1, Coord location2)
     return floor( sqrt( pow((x1-x2), 2) + pow((y1-y2), 2) ) );
 }
 
-std::vector<TownID> Datastructures::get_path_(TownID id)
+std::vector<TownID> Datastructures::get_path_(TownID id, TownID lasttown)
 {
-    std::vector<TownID> ret = {id};
+    std::vector<TownID> ret;
+    if (lasttown == NO_TOWNID) {
+        ret = {id};
+    } else {
+        ret = {lasttown, id};
+    }
+
 
     Town* town = towns_.at(id);
 
@@ -318,6 +324,16 @@ std::vector<TownID> Datastructures::get_path_(TownID id)
     }
     reverse(ret.begin(), ret.end());
     return ret;
+}
+
+void Datastructures::relax(TownID u, TownID v)
+{
+    int cost = distance_(towns_.at(u)->location_, towns_.at(v)->location_);
+    if (towns_.at(v)->d > towns_.at(u)->d + cost
+            || towns_.at(v)->d == -1) {
+        towns_.at(v)->d = towns_.at(u)->d + cost;
+        towns_.at(v)->path_back = towns_.at(u);
+    }
 }
 
 
@@ -331,6 +347,7 @@ void Datastructures::clear_roads() // O(N²)
     auto it = towns_.begin();
     while (it != towns_.end()) {
         it->second->neighbours_.clear();
+        it++;
     }
 }
 
@@ -342,12 +359,16 @@ std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
 
     while (it != towns_.end()) {
         for (auto i : it->second->neighbours_) {
-            std::pair<TownID, TownID> pair = {it->first, i};
-            std::pair<TownID, TownID> rev = {i, it->first};
-            if (find(edges.begin(), edges.end(), rev) == edges.end()) {
+
+            std::pair<TownID, TownID> pair;
+            if (it->first < i) {
+                pair = {it->first, i};
+            } else {
+                pair = {i, it->first};
+            }
+            if (find(edges.begin(), edges.end(), pair) == edges.end()) {
                 edges.push_back(pair);
             }
-
         }
         it++;
     }
@@ -386,7 +407,7 @@ std::vector<TownID> Datastructures::get_roads_from(TownID id)
     return roads;
 }
 
-std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid) //dfs
+std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid)
 {
     if (!town_exist_(fromid) || !town_exist_(toid)) {
         return {NO_TOWNID};
@@ -426,32 +447,153 @@ std::vector<TownID> Datastructures::any_route(TownID fromid, TownID toid) //dfs
     return {};
 }
 
-bool Datastructures::remove_road(TownID /*town1*/, TownID /*town2*/)
+bool Datastructures::remove_road(TownID town1, TownID town2)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("remove_road()");
+    if (!town_exist_(town1) || !town_exist_(town2)) {
+        return false;
+    }
+    auto it1 = find(towns_.at(town1)->neighbours_.begin(), towns_.at(town1)->neighbours_.end(), town2);
+    auto it2 = find(towns_.at(town2)->neighbours_.begin(), towns_.at(town2)->neighbours_.end(), town1);
+
+    if (it1 == towns_.at(town1)->neighbours_.end() || it2 == towns_.at(town2)->neighbours_.end()) {
+        return false;
+    }
+    towns_.at(town1)->neighbours_.erase(it1);
+    towns_.at(town2)->neighbours_.erase(it2);
+    return true;
+
 }
 
-std::vector<TownID> Datastructures::least_towns_route(TownID /*fromid*/, TownID /*toid*/)
+std::vector<TownID> Datastructures::least_towns_route(TownID fromid, TownID toid)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("least_towns_route()");
+    if (!town_exist_(fromid) || !town_exist_(toid)) {
+        return {NO_TOWNID};
+    }
+
+    auto it = towns_.begin();
+    while (it != towns_.end()) {
+        it->second->colour = WHITE;
+        it->second->path_back = nullptr;
+        it->second->d = -1;
+        it++;
+    }
+
+    std::deque<TownID> Q = {};
+
+    towns_.at(fromid)->colour = GRAY;
+    towns_.at(fromid)->d = 0;
+
+    Q.push_back(fromid);
+
+    while (!Q.empty()) {
+        TownID u = Q.front();
+        Q.pop_front();
+
+        for (auto&& v : towns_.at(u)->neighbours_) {
+            if (towns_.at(v)->colour == WHITE) {
+                towns_.at(v)->colour = GRAY;
+                towns_.at(v)->d = towns_.at(u)->d + 1;
+                towns_.at(v)->path_back = towns_.at(u);
+                Q.push_back(v);
+                if (v == toid) {
+                    return get_path_(v);
+                }
+            }
+        }
+        towns_.at(u)->colour = BLACK;
+    }
+
+    return {NO_TOWNID};
 }
 
-std::vector<TownID> Datastructures::road_cycle_route(TownID /*startid*/)
+std::vector<TownID> Datastructures::road_cycle_route(TownID startid)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("road_cycle_route()");
+    if (!town_exist_(startid)) {
+        return {NO_TOWNID};
+    }
+
+    auto it = towns_.begin();
+    while (it != towns_.end()) {
+        it->second->colour = WHITE;
+        it->second->path_back = nullptr;
+        it++;
+    }
+
+    std::vector<TownID> S = {};
+
+    S.push_back(startid);
+
+    while (!S.empty()) {
+        TownID u = S.back();
+        S.pop_back();
+
+        if (towns_.at(u)->colour == WHITE) {
+            towns_.at(u)->colour = GRAY;
+            S.push_back(u);
+            for (auto&& v : towns_.at(u)->neighbours_) {
+                if (towns_.at(v)->colour == WHITE) {
+                    S.push_back(v);
+                    towns_.at(v)->path_back = towns_.at(u);
+                } else if (towns_.at(v)->colour == GRAY && towns_.at(v) != towns_.at(u)->path_back) {
+                    return get_path_(u, v);
+                }
+            }
+        } else {
+            towns_.at(u)->colour = BLACK;
+        }
+    }
+    return {};
 }
 
-std::vector<TownID> Datastructures::shortest_route(TownID /*fromid*/, TownID /*toid*/)
+std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
 {
-    // Replace the line below with your implementation
-    // Also uncomment parameters ( /* param */ -> param )
-    throw NotImplemented("shortest_route()");
+    if (!town_exist_(fromid) || !town_exist_(toid)) {
+        return {NO_TOWNID};
+    }
+
+    auto it = towns_.begin();
+    while (it != towns_.end()) {
+        it->second->colour = WHITE;
+        it->second->path_back = nullptr;
+        it->second->d = INFINITY;
+        it++;
+    }
+
+    const Coord dest = towns_.at(toid)->location_;
+
+    auto cmp = [this, toid, dest](TownID left, TownID right) {
+        auto dist_left = distance_(towns_.at(left)->location_, dest) + towns_.at(left)->d;
+        auto dist_right = distance_(towns_.at(right)->location_, dest) + towns_.at(right)->d;
+        return dist_left > dist_right;
+    };
+    std::priority_queue<TownID, std::vector<TownID>, decltype (cmp)> Q(cmp);
+
+    towns_.at(fromid)->colour = GRAY;
+    towns_.at(fromid)->d = 0;
+
+    Q.push(fromid);
+
+    while (!Q.empty()) {
+        TownID u = Q.top();
+        Q.pop();
+        for (auto&& v : towns_.at(u)->neighbours_) {
+            relax(u, v);
+//            int cost = distance_(towns_.at(u)->location_, towns_.at(v)->location_);
+            if (towns_.at(v)->colour == WHITE) {
+                towns_.at(v)->colour = GRAY;
+                Q.push(v);
+            } else {
+
+            }
+        }
+        towns_.at(u)->colour = BLACK;
+    }
+
+    if (towns_.at(toid)->d != INFINITY) {
+        return get_path_(toid);
+    }
+
+    return {};
 }
 
 Distance Datastructures::trim_road_network()

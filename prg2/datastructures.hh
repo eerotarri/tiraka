@@ -11,6 +11,8 @@
 #include <map>
 #include <unordered_set>
 #include <vector>
+#include <deque>
+#include <queue>
 #include <tuple>
 #include <utility>
 #include <limits>
@@ -258,7 +260,9 @@ private:
     // Short rationale for estimate: Only constant operations
     int distance_(Coord location1, Coord location2);
 
-    std::vector<TownID> get_path_(TownID id);
+    std::vector<TownID> get_path_(TownID id, TownID lasttown = NO_TOWNID);
+
+    void relax(TownID u, TownID v);
 
 };
 
