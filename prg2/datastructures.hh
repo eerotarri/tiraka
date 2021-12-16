@@ -1,14 +1,15 @@
 // Datastructures.hh
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Eero Tarri
+// Student email: eero.tarri@tuni.fi
+// Student number: H283568
 
 #ifndef DATASTRUCTURES_HH
 #define DATASTRUCTURES_HH
 
 #include <string>
 #include <map>
+#include <set>
 #include <unordered_set>
 #include <vector>
 #include <deque>
@@ -103,8 +104,10 @@ public:
     // Short rationale for estimate:
     unsigned int town_count();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Iterates through unordered_map to delete
+    // pointers which is linear and then clears the datastructure with
+    // unordered_map::clear which is linear
     void clear_all();
 
     // Estimate of performance:
@@ -184,42 +187,53 @@ public:
 
     // Phase 2 operations
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+
+    // Estimate of performance: O(N²)
+    // Short rationale for estimate: Iterates through the elements of unordered_map which is linear
+    // and uses unordered_map::clear which is also linear
     void clear_roads();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: O(N³) averages theta O(N²)
+    // Short rationale for estimate: Iterates through vertices then iterates through their
+    // adjacent vertices aka edges. For each adjacent vertice uses unordered_set::insert which is
+    // linear at worst case but averages at constant.
     std::vector<std::pair<TownID, TownID>> all_roads();
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(N)
+    // Short rationale for estimate: Uses town_exist_ and std::find which are linear
+    // and unorderedset::insert which is linear at worst but averages constant
     bool add_road(TownID town1, TownID town2);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(N)
+    // Short rationale for estimate: Uses town_exists_ which is linear and iterates through
+    // edges of given town which is linear at worst.
     std::vector<TownID> get_roads_from(TownID id);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(N+K)
+    // Short rationale for estimate: Contains DFS algorithm which has complecity of
+    // amountOfVertices N plus amountOfEdges K
     std::vector<TownID> any_route(TownID fromid, TownID toid);
 
     // Non-compulsory phase 2 operations
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(N)
+    // Short rationale for estimate: Uses town_exist_ and std::find which are linear
+    // and unordered_set::erase which is linear at worst but averages constant
     bool remove_road(TownID town1, TownID town2);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(N+K)
+    // Short rationale for estimate: Contains BFS algorithm which has complecity of
+    // amountOfVertices N plus amountOfEdges K
     std::vector<TownID> least_towns_route(TownID fromid, TownID toid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O(N+K)
+    // Short rationale for estimate: Contains DFS algorithm which has complecity of
+    // amountOfVertices N plus amountOfEdges K
     std::vector<TownID> road_cycle_route(TownID startid);
 
-    // Estimate of performance:
-    // Short rationale for estimate:
+    // Estimate of performance: // O((N + K)*log(N))
+    // Short rationale for estimate: Contains DIJKSTRA algoritghm which has complexity
+    // of product of amountOfVertices N plus amountOfEdges K times log(N)
     std::vector<TownID> shortest_route(TownID fromid, TownID toid);
 
     // Estimate of performance:
@@ -260,8 +274,13 @@ private:
     // Short rationale for estimate: Only constant operations
     int distance_(Coord location1, Coord location2);
 
+    // Estimate of performance: O(N)
+    // Short rationale for estimate: Checks path back which is at worst trough every vertice
+    // and uses std::reverse which is linear
     std::vector<TownID> get_path_(TownID id, TownID lasttown = NO_TOWNID);
 
+    // Estimate of performance: O(1)
+    // Short rationale for estimate: Only constant operations
     void relax(TownID u, TownID v);
 
 };

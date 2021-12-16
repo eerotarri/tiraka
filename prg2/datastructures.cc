@@ -1,14 +1,16 @@
 // Datastructures.cc
 //
-// Student name:
-// Student email:
-// Student number:
+// Student name: Eero Tarri
+// Student email: eero.tarri@tuni.fi
+// Student number: H283568
 
 #include "datastructures.hh"
 
 #include <random>
 
 #include <cmath>
+
+const int INF = std::numeric_limits<int>::max(); // Maximum value for edge lenghts
 
 std::minstd_rand rand_engine; // Reasonably quick pseudo-random generator
 
@@ -34,12 +36,6 @@ Datastructures::Datastructures()
 
 Datastructures::~Datastructures()
 {
-//    std::unordered_map<TownID, Town*>::iterator it = towns_.begin();
-//    while ( it != towns_.end() ) {
-//        delete it->second;
-
-//        it++;
-//    }
     clear_all();
 }
 
@@ -50,6 +46,12 @@ unsigned int Datastructures::town_count()
 
 void Datastructures::clear_all()
 {
+    auto u_map_iter = towns_.begin();
+
+    while (u_map_iter != towns_.end()) {
+        delete u_map_iter->second;
+        u_map_iter++;
+    }
     towns_.clear();
 }
 
@@ -229,6 +231,7 @@ bool Datastructures::remove_town(TownID id)
         }
     }
 
+    delete towns_.at(id);
     towns_.erase(id);
     return true;
 }
@@ -291,8 +294,7 @@ int Datastructures::recursive_tax_(TownID id)
 
 bool Datastructures::town_exist_(TownID id)
 {
-    if (towns_.find(id) == towns_.end())
-    {return false;}
+    if (towns_.find(id) == towns_.end()) {return false;}
     return true;
 }
 
@@ -342,7 +344,7 @@ void Datastructures::relax(TownID u, TownID v)
 //
 
 
-void Datastructures::clear_roads() // O(N²)
+void Datastructures::clear_roads()
 {
     auto it = towns_.begin();
     while (it != towns_.end()) {
@@ -353,7 +355,7 @@ void Datastructures::clear_roads() // O(N²)
 
 std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
 {
-    std::vector<std::pair<TownID, TownID>> edges = {};
+    std::set<std::pair<TownID, TownID>> edges = {};
 
     auto it = towns_.begin();
 
@@ -366,14 +368,14 @@ std::vector<std::pair<TownID, TownID>> Datastructures::all_roads()
             } else {
                 pair = {i, it->first};
             }
-            if (find(edges.begin(), edges.end(), pair) == edges.end()) {
-                edges.push_back(pair);
-            }
+            edges.insert(pair);
         }
         it++;
     }
 
-    return edges;
+    std::vector<std::pair<TownID, TownID>> ret(edges.begin(), edges.end());
+
+    return ret;
 }
 
 bool Datastructures::add_road(TownID town1, TownID town2)
@@ -382,7 +384,8 @@ bool Datastructures::add_road(TownID town1, TownID town2)
         return false;
     }
 
-    if (find(towns_.at(town1)->neighbours_.begin(), towns_.at(town1)->neighbours_.end(), town2) != towns_.at(town1)->neighbours_.end()) {
+    if (find(towns_.at(town1)->neighbours_.begin(), towns_.at(town1)->neighbours_.end(), town2)
+            != towns_.at(town1)->neighbours_.end()) {
         return false;
     }
 
@@ -398,11 +401,7 @@ std::vector<TownID> Datastructures::get_roads_from(TownID id)
         return {NO_TOWNID};
     }
 
-    std::vector<TownID> roads = {};
-
-    for (auto&& i : towns_.at(id)->neighbours_) {
-        roads.push_back(i);
-    }
+    std::vector<TownID> roads(towns_.at(id)->neighbours_.begin(), towns_.at(id)->neighbours_.end());
 
     return roads;
 }
@@ -555,7 +554,7 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
     while (it != towns_.end()) {
         it->second->colour = WHITE;
         it->second->path_back = nullptr;
-        it->second->d = INFINITY;
+        it->second->d = INF;
         it++;
     }
 
@@ -578,7 +577,6 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
         Q.pop();
         for (auto&& v : towns_.at(u)->neighbours_) {
             relax(u, v);
-//            int cost = distance_(towns_.at(u)->location_, towns_.at(v)->location_);
             if (towns_.at(v)->colour == WHITE) {
                 towns_.at(v)->colour = GRAY;
                 Q.push(v);
@@ -589,7 +587,7 @@ std::vector<TownID> Datastructures::shortest_route(TownID fromid, TownID toid)
         towns_.at(u)->colour = BLACK;
     }
 
-    if (towns_.at(toid)->d != INFINITY) {
+    if (towns_.at(toid)->d != INF) {
         return get_path_(toid);
     }
 

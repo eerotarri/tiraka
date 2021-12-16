@@ -1,0 +1,121 @@
+// README.txt
+//
+// Student name: Eero Tarri
+// Student email: eero.tarri@tuni.fi
+// Student number: H283568
+
+--------------
+DATA STRUCTURE
+--------------
+
+Yksittäisen kaupungin tiedot ovat tallennettu structureen Town.
+Kaupungista tallennetaan tunnus, nimi, sijainti, verojen määrä sekä
+kaupungista lähtevät tiet. Structureen tallennetaan myös kaupunki,
+jolle maksetaan veroa sekä kaikkien kaupunkien tunnus vektorissa,
+jotka maksavat kaupungille veroa. Lisäksi kaupunkiin tallennetaan
+apumuuttujiksi etäisyys, kaupungi josta tultiin ja onko kaupunki jo
+käsitelty. Apumuuttujat auttavat käsittelemään DFS, BFS ja DIJKSTRA
+algoritmeja.
+
+Kaikki yksittäiset kaupungit ovat tallennettu unordered_map
+tietorakenteeseen. Sieltä niitä on helppo käsitellä tunnuksella
+
+---------------
+PRIVATE METHODS
+---------------
+
+Apufunktiot, joita käytetään yhden tai useamman funktion toiminnan
+mahdollistamiseen. Funktiota town_exist_ on jouduttu käyttämään useassa
+funktiossa, jotta saadaan selville, onko kaupunki tietorakenteessa, joka
+rajoittaa monen funktion osalta tehokkuuden lineaarisuuteen.
+
+
+- town_exist_ (O(N))
+
+Funktio joka palauttaa arvon TRUE, jos tunnuksella annettu kaupunki
+löytyy tietorakenteesta towns_. FALSE, jos arvoa ei löydy.
+
+- distance_ (O(1))
+
+Laskee kahden annatun sijainnin etäisyyden toisistaan ja palauttaa
+saadun arvon pyöristettynä alaspäin lähimpään kokonaislukuun.
+
+- recursive_tax_ (O(N))
+
+Apufunktio pisimmän vasallisuhteen löytämiseen. Olennainen, jotta
+funktiossa longest_vassal_path voidaan tarkastella, onko tunnuksella
+annetulla kaupungilla itsellään Master-kaupunkia. Laskee rekursiivisesti
+kaikkien suoraan ja epäsuoraan alla olevien vasallikaupunkien nettoveroarvot
+ja palauttaa tunnuksella annetun kaupungin verottamattoman nettoveroarvon.
+Jos kaupunki on jonkun muun kaupungin verovelvollinen, tarkastus ja muutos
+tapahtuu kutsujafunktiossa longest_vassal_path.
+
+- get_path_ (O(N))
+
+Ottaa kaupungin, johon ollaan päädytty ja palauttaa kuljetun reitin käyttäen
+apuna path_back_ muuttujia.
+
+- relax (O(1))
+
+Tarkastaa onko tultu reitti tehokkain ja muuttaa kaupungin apumuuttujia sen mukaan.
+
+
+---------------
+PUBLIC METHODS
+---------------
+
+- clear_all (O(N))
+
+Poistaa kaikki kaupungit tietorakenteesta. .clear() on lineaarinen. Nyt funktio
+poistaa myös osoittimet kaupunkirakenteisiin, jolloin muisti vapautuu.
+
+- clear_roads O(N²)
+
+Iteroi kaupungit ja tyhjentää niiden neighbour_ säiliön.
+
+- all_roads (O(N³), theta O(N²))
+
+Käy jokaisen kaupungin naapurisäilöt läpi ja lisää kahden kaupungin välisen tien
+parina set tietorakenteeseen. set::insert on keskiarvoisena vakioaikainen, joten
+se on hieman tehokkaampaa, kuin tarkastaa, löytyykö pari jo vektorista ja lisätä,
+jos ei.
+
+- add_road (O(N))
+
+Lisää tien tietorakenteeseen, jos sitä ei vielä löydy.
+
+- get_roads_from (O(N))
+
+Palauttaa kaupungista lähtevät tiet vektoriin tallennettuna.
+
+- any_route (O(N+K))
+
+Etsii DFS algoritmilla jonkin tien lähtökaupungista päätekaupunkiin.
+N = kaupunkien lukumäärä
+K = teiden lukumäärä
+
+
+NON-COMPULSORY OPERATIONS
+-------------------------
+
+- remove_road (O(N))
+
+Poistaa tiedon tiestä molemman kaupungin naapuritietorakenteesta.
+
+- least_towns_route (O(N+K))
+
+Etsii BFS algoritmilla vähiten kaupunkeja sisältävän tien lähtökaupungista päätekaupunkiin.
+N = kaupunkien lukumäärä
+K = teiden lukumäärä
+
+- road_cycle_route (O(N+K))
+
+Etsii DFS algoritmilla ensimmäisen vastaan tulenvan silmukan ja palauttaa tiedon siitä.
+N = kaupunkien lukumäärä
+K = teiden lukumäärä
+
+- shortest_route ( O((N + K)*log(N)) )
+
+Etsii DIJKSTRA algoritmilla lyhyimmän tien lähtökaupungista päätekaupunkiin.
+N = kaupunkien lukumäärä
+K = teiden lukumäärä
